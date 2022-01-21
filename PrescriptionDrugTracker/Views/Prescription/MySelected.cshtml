@@ -10,12 +10,16 @@
     <tr>
         <th>Name of Medication</th>
         <th>Tier (1-3; lower is cheaper)</th>
+        <th>Set Refill Information</th>
     </tr>
     @foreach(Prescription p in ViewBag.mydruglist)
     {
         <tr>
             <th>@p.DrugName</th>
             <th>@p.Tier</th>
+            <th><a asp-controller="Prescription" asp-action="SetExpiration"
+            asp-route-drugname="@p.DrugName"> 
+                Set expiration information</a></th>
         </tr>
     }
 </table>
