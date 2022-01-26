@@ -35,15 +35,30 @@ namespace PrescriptionDrugTracker.Controllers
 
         [HttpGet]
         [HttpPost]
-        public IActionResult MySelected(string drugname)
+        public IActionResult MySelected(string drugname, string[] drugnames)
         {
             if(!(drugname is null))
             {
                 Prescription SelectedDrug = new Prescription(drugname,
                 Prescription.GetDrugLibrary()[drugname]);
+
+                //This logic depends on how equals method works
                 if (!(SelectedDrugs.Contains(SelectedDrug)))
                 {
                     SelectedDrugs.Add(SelectedDrug);
+                }
+            }
+            if(!(drugnames is null))
+            {
+
+                foreach(string drug in drugnames)
+                {
+                    Prescription SelectedDrug = new Prescription(drug,
+                    Prescription.GetDrugLibrary()[drug]);
+                    if (!(SelectedDrugs.Contains(SelectedDrug)))
+                    {
+                        SelectedDrugs.Add(SelectedDrug);
+                    }
                 }
             }
             ViewBag.mydruglist = SelectedDrugs;
@@ -61,14 +76,12 @@ namespace PrescriptionDrugTracker.Controllers
             return View();
         }
 
+        //TODO: Check what happens if we try to set duration when already set
         [HttpPost]
         [Route("/prescription/processsetexpiration/{drugname?}")]
         public IActionResult ProcessSetExpiration(string drugname, string lastfilled, int daysoffill)
         {
-            int year = int.Parse(lastfilled.Substring(0, 4));
-            int month = int.Parse(lastfilled.Substring(5, 2));
-            int day = int.Parse(lastfilled.Substring(8));
-            DateTime LastFillDate = new DateTime(year, month, day);
+            DateTime LastFillDate = ParseDateString(lastfilled);
             DateTime RefillDue = LastFillDate.AddDays(daysoffill);
             if(!(CurrentUser.Expirations.ContainsKey(drugname)))
             {
@@ -86,7 +99,17 @@ namespace PrescriptionDrugTracker.Controllers
             return View();
         }
 
-        List<Prescription> GenerateAllDrugs()
+        public IActionResult SelectMultiple()
+        {
+            if (AllDrugs is null)
+            {
+                GenerateAllDrugs();
+            }
+            ViewBag.druglist = AllDrugs;
+            return View();
+        }
+
+        public List<Prescription> GenerateAllDrugs()
         {
             Dictionary<string, int> DrugsDict = Prescription.GetDrugLibrary();
             List<Prescription> ret = new List<Prescription>();
@@ -96,6 +119,15 @@ namespace PrescriptionDrugTracker.Controllers
             }
             AllDrugs = ret;
             return ret;
+        }
+
+        public DateTime ParseDateString(string iso)
+        {
+            int year = int.Parse(iso.Substring(0, 4));
+            int month = int.Parse(iso.Substring(5, 2));
+            int day = int.Parse(iso.Substring(8));
+            DateTime LastFillDate = new DateTime(year, month, day);
+            return LastFillDate;
         }
 
 

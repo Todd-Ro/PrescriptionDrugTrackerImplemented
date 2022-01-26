@@ -4,7 +4,7 @@
 @{
 }
 
-<h1>Select Medication to add</h1>
+<h1>Select Multiple Medications to add</h1>
 
 <form method='post' action='/prescription/myselected'>
     <select name='drugname' id='drugname'>
@@ -13,6 +13,6 @@
             <option value='@p.DrugName'>@p.DrugName</option>
         }
     </select>
-    <br /><br />
+    <br />
     <input type='submit' value='Submit' />
 </form>
